@@ -175,6 +175,10 @@
 #   Ship/scout spawns refuse to launch unless the resolved task path is a real
 #   git worktree root distinct from both the spawning project and its repository's
 #   primary checkout, including when the spawning project is a linked worktree.
+#   Directory identity, rather than path spelling, owns both worktree discovery
+#   and final isolation validation, so case aliases on a case-insensitive
+#   filesystem are recognized as the primary checkout while distinct
+#   case-sensitive paths stay distinct.
 #   On the backends that discover that path by reading the task pane's own cwd,
 #   the same isolation test screens every read: a pane still showing the project
 #   or the repository primary while `treehouse get` prepares the slot is waited
@@ -182,6 +186,10 @@
 #   itself a linked worktree of the project repository still launches. A pane
 #   that never reaches an isolated worktree refuses at the end of that wait,
 #   naming the last path seen and why it was rejected.
+#   treehouse-get delivery is idempotently retried while a new shell may still
+#   be starting: FM_TREEHOUSE_GET_SEND_ATTEMPTS (default 3) bounds the sends and
+#   FM_TREEHOUSE_GET_RETRY_WAIT_SECS (default 2) controls their spacing. The
+#   existing 60-second worktree-entry budget remains the final bound.
 #   That placement is proven only at launch. Every ship or scout pane therefore
 #   also receives `export FM_TASK_ID=<task-id>` before the launch command, on
 #   the same channel as GOTMPDIR, and bin/fm-test-run.sh refuses to execute the
@@ -2261,6 +2269,18 @@ BRIEF_REAL="$BRIEF_DIR_REAL/$(basename "$BRIEF")"
 # (docs/herdr-backend.md "Known gaps").
 PROJ_ABS_REAL=$(cd "$PROJ_ABS" 2>/dev/null && pwd -P) || PROJ_ABS_REAL="$PROJ_ABS"
 
+if [ "$KIND" != secondmate ] && [ "$BACKEND" != orca ]; then
+  TREEHOUSE_GET_SEND_ATTEMPTS=${FM_TREEHOUSE_GET_SEND_ATTEMPTS:-3}
+  TREEHOUSE_GET_RETRY_WAIT_SECS=${FM_TREEHOUSE_GET_RETRY_WAIT_SECS:-2}
+  case "$TREEHOUSE_GET_SEND_ATTEMPTS" in
+    ''|*[!0-9]*|0) echo "error: FM_TREEHOUSE_GET_SEND_ATTEMPTS must be a positive integer" >&2; exit 2 ;;
+  esac
+  case "$TREEHOUSE_GET_RETRY_WAIT_SECS" in
+    ''|*[!0-9]*) echo "error: FM_TREEHOUSE_GET_RETRY_WAIT_SECS must be a non-negative integer" >&2; exit 2 ;;
+  esac
+  TREEHOUSE_GET_RETRY_WAIT_SECS=$((10#$TREEHOUSE_GET_RETRY_WAIT_SECS))
+fi
+
 real_path_or_raw() {  # <path>
   local path=$1 real
   if real=$(cd "$path" 2>/dev/null && pwd -P); then
@@ -2268,6 +2288,13 @@ real_path_or_raw() {  # <path>
   else
     printf '%s\n' "$path"
   fi
+}
+
+directories_are_same() {  # <left> <right>
+  local left=$1 right=$2
+  [ -n "$left" ] && [ -n "$right" ] || return 1
+  [ "$left" = "$right" ] && return 0
+  [ -d "$left" ] && [ -d "$right" ] && [ "$left" -ef "$right" ]
 }
 
 # Session-provider container-ensure + task creation. tmux stays exactly as P1
@@ -2320,11 +2347,11 @@ spawn_worktree_isolated() {  # <path>
     SPAWN_WT_REASON="it is not inside a git worktree"
     return 1
   fi
-  if [ "$wt_real" != "$wt_top_real" ]; then
+  if ! directories_are_same "$wt_real" "$wt_top_real"; then
     SPAWN_WT_REASON="it is a subdirectory of worktree root '$wt_top_real', not a worktree root"
     return 1
   fi
-  if [ "$wt_real" = "$PROJ_ABS_REAL" ]; then
+  if directories_are_same "$wt_real" "$PROJ_ABS_REAL"; then
     SPAWN_WT_REASON="it is the spawning project itself"
     return 1
   fi
@@ -2339,7 +2366,7 @@ spawn_worktree_isolated() {  # <path>
     SPAWN_WT_REASON="its git directory could not be resolved"
     return 1
   fi
-  if [ "$wt_git_dir" = "$proj_common" ]; then
+  if directories_are_same "$wt_git_dir" "$proj_common"; then
     SPAWN_WT_REASON="it is the repository's primary checkout (its git dir is the spawning project's common git dir)"
     return 1
   fi
@@ -3014,16 +3041,25 @@ if [ "$RELAUNCH" -eq 1 ]; then
   relaunch_seen=
   for _ in $(seq 1 10); do
     relaunch_seen=$(spawn_current_path "$WT_TARGET" || true)
-    [ -z "$relaunch_seen" ] || [ "$(real_path_or_raw "$relaunch_seen")" != "$relaunch_wt_real" ] || break
+    [ -z "$relaunch_seen" ] || directories_are_same "$(real_path_or_raw "$relaunch_seen")" "$relaunch_wt_real" || break
     sleep 0.5
   done
-  if [ -z "$relaunch_seen" ] || [ "$(real_path_or_raw "$relaunch_seen")" != "$relaunch_wt_real" ]; then
+  if [ -z "$relaunch_seen" ] || ! directories_are_same "$(real_path_or_raw "$relaunch_seen")" "$relaunch_wt_real"; then
     echo "error: task $ID's endpoint is in '${relaunch_seen:-unknown}', not its recorded worktree '$WT'; refusing to relaunch an agent outside the copy holding its work" >&2
     exit 1
   fi
   [ "$KIND" = secondmate ] || validate_spawn_worktree "relaunch" "$T"
 elif [ "$KIND" != secondmate ] && [ "$BACKEND" != orca ]; then
-  spawn_send_text_line "$WT_TARGET" 'treehouse get'
+  # A brand-new interactive shell can swallow input before it has a reader.
+  # Retry the delivery, but make every accepted copy converge on one allocation:
+  # the first shell to run this line exports a per-spawn token before entering
+  # treehouse, and both that shell and the resulting subshell ignore any copies
+  # already queued behind it.
+  TREEHOUSE_GET_TOKEN="$ID-$$-$RANDOM"
+  TREEHOUSE_GET_TOKEN_QUOTED=$(shell_quote "$TREEHOUSE_GET_TOKEN")
+  TREEHOUSE_GET_COMMAND="if [ \"\${FM_TREEHOUSE_GET_TOKEN:-}\" != $TREEHOUSE_GET_TOKEN_QUOTED ]; then export FM_TREEHOUSE_GET_TOKEN=$TREEHOUSE_GET_TOKEN_QUOTED; treehouse get; fi"
+  treehouse_get_sends=0
+  treehouse_get_next_send=0
 
   # Wait for the treehouse subshell: the pane's cwd moves from the project to the worktree.
   # Target the stable window id, not the name: if the name is ever lost (e.g. an
@@ -3061,12 +3097,19 @@ elif [ "$KIND" != secondmate ] && [ "$BACKEND" != orca ]; then
   last_seen=""
   last_reason="the pane reported no path"
   for _ in $(seq 1 60); do
+    if [ "$treehouse_get_sends" -eq 0 ] \
+       || { [ "$treehouse_get_sends" -lt "$TREEHOUSE_GET_SEND_ATTEMPTS" ] \
+            && [ "$SECONDS" -ge "$treehouse_get_next_send" ]; }; then
+      spawn_send_text_line "$WT_TARGET" "$TREEHOUSE_GET_COMMAND" || true
+      treehouse_get_sends=$((treehouse_get_sends + 1))
+      treehouse_get_next_send=$((SECONDS + TREEHOUSE_GET_RETRY_WAIT_SECS))
+    fi
     p=$(spawn_current_path "$WT_TARGET" || true)
     [ -z "$p" ] || last_seen="$p"
     if [ -n "$p" ] && spawn_worktree_isolated "$p"; then
       p_real=$(real_path_or_raw "$p")
       last_reason="it is an isolated worktree, but no second read agreed with it"
-      if [ -n "$candidate" ] && [ "$p_real" = "$candidate" ]; then
+      if [ -n "$candidate" ] && directories_are_same "$p_real" "$candidate"; then
         WT="$p"
         break
       fi

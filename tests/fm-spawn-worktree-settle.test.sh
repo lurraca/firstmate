@@ -252,7 +252,7 @@ run_startup_spawn() {
     FM_FAKE_PROJECT_PATH="$PROJ_DIR" FM_FAKE_PANE_PATH="$WT_DIR" \
     FM_FAKE_PANE_COUNTFILE="$COUNTFILE" \
     PATH="$FAKEBIN_DIR:$PATH" \
-    "$SPAWN" "$id" "$PROJ_DIR" 2>&1
+    "$SPAWN" "$id" "$PROJ_DIR" --mode no-mistakes --yolo off 2>&1
 }
 
 test_swallowed_first_delivery_is_retried_safely() {
@@ -317,7 +317,7 @@ SH
   status=$?
   set -e
   expect_code 1 "$status" "spawn should fail when no delivery enters a worktree"
-  assert_contains "$out" "treehouse get did not enter a worktree within 60s" \
+  assert_contains "$out" "treehouse get did not enter an isolated worktree within 60s" \
     "bounded failure did not explain the startup timeout"
   [ "$(cat "$send_count")" = 2 ] || fail "timeout exceeded its configured delivery-attempt bound"
   assert_absent "$HOME_DIR/state/$id.meta" "timeout must not publish task metadata"
@@ -334,7 +334,14 @@ test_case_spelling_obeys_directory_identity() {
   id=settle-case-identity-z5
   mkdir -p "$home/data/$id" "$home/projects" "$home/state" "$home/config"
   printf 'codex\n' > "$home/config/crew-harness"
-  printf 'brief\n' > "$home/data/$id/brief.md"
+  cat > "$home/data/$id/brief.md" <<EOF
+# Task
+## Captain's intent
+Exercise directory-identity selection for $id.
+
+## Firstmate spec
+Record only the directory selected by filesystem identity.
+EOF
   touch "$home/state/.last-watcher-beat"
 
   mkdir -p "$project"
@@ -359,7 +366,7 @@ test_case_spelling_obeys_directory_identity() {
     FM_PROJECTS_OVERRIDE="$home/projects" FM_CONFIG_OVERRIDE="$home/config" \
     FM_SPAWN_NO_GUARD=1 TMUX="fake,1,0" \
     FM_FAKE_PANE_SEQUENCE_FILE="$sequence" FM_FAKE_PANE_COUNTFILE="$countfile" \
-    PATH="$fakebin:$PATH" "$SPAWN" "$id" "$project" 2>&1)
+    PATH="$fakebin:$PATH" "$SPAWN" "$id" "$project" --mode no-mistakes --yolo off 2>&1)
   status=$?
   expect_code 0 "$status" "spawn should apply the filesystem's actual case behavior"
   assert_grep "worktree=$expected_wt" "$home/state/$id.meta" \

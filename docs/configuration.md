@@ -879,6 +879,8 @@ FM_PROC_ROOT_OVERRIDE=   # alternate /proc root for Linux process-identity reads
 FM_BACKEND=             # optional runtime backend override for new spawns; tmux/herdr/zellij/orca/cmux support ship/scout spawns, codex-app is not accepted
 FM_TRACE_CONTEXT=       # optional trace-context override; see "Trace context propagation"
 FM_TASK_ID=             # internal task-worker marker fm-spawn.sh exports into ship and scout panes, never set by hand; bin/fm-test-run.sh refuses to execute in the repository primary checkout while it is set
+FM_TREEHOUSE_GET_SEND_ATTEMPTS=3   # max treehouse-get deliveries fm-spawn.sh sends while a new ship/scout pane's shell may still be starting
+FM_TREEHOUSE_GET_RETRY_WAIT_SECS=2 # seconds fm-spawn.sh waits before each retry of that delivery
 HERDR_SESSION=default  # herdr-only: named session for normal backend ops; not enough for destructive cleanup (docs/herdr-backend.md)
 FM_BACKEND_HERDR_SUBMIT_POLLS=6  # herdr-only: agent-state samples spread across each Enter attempt's budget when confirming a submit (docs/herdr-backend.md "Current transport behavior")
 FM_BACKEND_HERDR_SUBMIT_MIN_SLEEP=0.6  # herdr-only: minimum per-Enter confirmation budget before polling agent-state after an idle baseline
@@ -1031,3 +1033,7 @@ Only after those retries exhaust does it remove the lock, and only when it is pr
 A live lock, a missing `lsof`, any failed check, or any other fetch failure keeps today's behavior.
 Every wait, retry, and removal is printed to stderr, and a successful recovery also prints one `recovered:` summary line to stdout so a session-start refresh - which discards fleet-sync stderr and relays only stdout - still surfaces it.
 The shared staleness proof lives in `bin/fm-lock-lib.sh`, which both `fm-teardown.sh` and `fm-fleet-sync.sh` use.
+
+`fm-spawn.sh` idempotently retries the `treehouse get` line it sends into a new ship or scout pane, because a brand-new interactive shell can swallow input before it has a reader.
+`FM_TREEHOUSE_GET_SEND_ATTEMPTS` accepts a positive integer (default 3) bounding how many deliveries are sent, and `FM_TREEHOUSE_GET_RETRY_WAIT_SECS` accepts a nonnegative integer (default 2) spacing them.
+The existing 60-second worktree-entry budget remains the final bound, and a per-spawn token exported before `treehouse get` keeps every accepted copy converging on one worktree allocation.

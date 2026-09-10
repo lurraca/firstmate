@@ -1,0 +1,16 @@
+exit=1 elapsed=61s
+warning: /tmp/fmdeadline-48813/home/data/live-deadline-z1/launch-brief.md records no delivery contract line (scaffolded before ship briefs recorded one); launching on the explicit --mode no-mistakes - confirm its definition of done matches
+error: treehouse get did not enter an isolated worktree within 60s (delivery: 3 accepted of 3 attempts; last delivery: attempt 3 was accepted; last seen '/private/tmp/fmdeadline-48813/project': it is the spawning project itself; spawning project '/tmp/fmdeadline-48813/project'); inspect window firstmate:fm-live-deadline-z1
+--- META exists? 0 ---
+--- PANE ---
+luis.urraca@X7X56XWY9W:/tmp/fmdeadline-48813/project/ > if [ "${FM_TREEHOUSE_GET
+_TOKEN:-}" != 'live-deadline-z1-49112-5278' ]; then export FM_TREEHOUSE_GET_TOKE
+N='live-deadline-z1-49112-5278'; treehouse get; fi
+zsh: command not found: treehouse
+luis.urraca@X7X56XWY9W:/tmp/fmdeadline-48813/project/ > if [ "${FM_TREEHOUSE_GET
+_TOKEN:-}" != 'live-deadline-z1-49112-5278' ]; then export FM_TREEHOUSE_GET_TOKE
+N='live-deadline-z1-49112-5278'; treehouse get; fi
+luis.urraca@X7X56XWY9W:/tmp/fmdeadline-48813/project/ > if [ "${FM_TREEHOUSE_GET
+_TOKEN:-}" != 'live-deadline-z1-49112-5278' ]; then export FM_TREEHOUSE_GET_TOKE
+N='live-deadline-z1-49112-5278'; treehouse get; fi
+luis.urraca@X7X56XWY9W:/tmp/fmdeadline-48813/project/ >

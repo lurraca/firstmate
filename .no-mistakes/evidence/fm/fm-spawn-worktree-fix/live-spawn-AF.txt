@@ -1,0 +1,42 @@
+exit=0
+warning: /tmp/fmcore-40339/home/data/live-ship-z1/launch-brief.md records no delivery contract line (scaffolded before ship briefs recorded one); launching on the explicit --mode no-mistakes - confirm its definition of done matches
+spawned live-ship-z1 harness=codex kind=ship mode=no-mistakes yolo=off window=firstmate:fm-live-ship-z1 worktree=/private/tmp/fmcore-40339/treehouse-root/.treehouse/project-645d9b/1/project
+--- META ---
+window=firstmate:fm-live-ship-z1
+endpoint_task_id=live-ship-z1
+worktree=/private/tmp/fmcore-40339/treehouse-root/.treehouse/project-645d9b/1/project
+project=/tmp/fmcore-40339/project
+harness=codex
+kind=ship
+mode=no-mistakes
+yolo=off
+tasktmp=/tmp/fm-live-ship-z1
+model=default
+effort=default
+spawn_gen=s1789058924.40527.9816
+--- WORKER ---
+unset pid=42002
+--- PANE ---
+luis.urraca@X7X56XWY9W:/tmp/fmcore-40339/project/ > if [ "${FM_TREEHOUSE_GET_TOK
+EN:-}" != 'live-ship-z1-40527-27252' ]; then export FM_TREEHOUSE_GET_TOKEN='live
+-ship-z1-40527-27252'; treehouse get; fi
+🌳 Setting up worktree...
+🌳 Entered worktree at /tmp/fmcore-40339/treehouse-root/.treehouse/project-645d9
+b/1/project. Type 'exit' to return.
+luis.urraca@X7X56XWY9W:/private/tmp/fmcore-40339/treehouse-root/.treehouse/proje
+ct-645d9b/1/project/ > if [ "${FM_TREEHOUSE_GET_TOKEN:-}" != 'live-ship-z1-40527
+-27252' ]; then export FM_TREEHOUSE_GET_TOKEN='live-ship-z1-40527-27252'; treeho
+use get; fi
+luis.urraca@X7X56XWY9W:/private/tmp/fmcore-40339/treehouse-root/.treehouse/proje
+ct-645d9b/1/project/ > export GOTMPDIR=/tmp/fm-live-ship-z1/gotmp
+luis.urraca@X7X56XWY9W:/private/tmp/fmcore-40339/treehouse-root/.treehouse/proje
+ct-645d9b/1/project/ > export FM_TASK_ID=live-ship-z1
+luis.urraca@X7X56XWY9W:/private/tmp/fmcore-40339/treehouse-root/.treehouse/proje
+ct-645d9b/1/project/ > unset FM_TREEHOUSE_GET_TOKEN; env -u CURSOR_AGENT -u CURS
+OR_INVOKED_AS -u GEMINI_CLI codex --dangerously-bypass-approvals-and-sandbox -c
+"notify=[\"bash\",\"-c\",\"touch '/private/tmp/fmcore-40339/home/state/live-ship
+-z1.turn-ended'\"]" "$('/Users/luis.urraca/.no-mistakes/worktrees/0abc5c4ae5d7/0
+1M25Z4TSYD2Z8ZMP08QQQZ2SA/bin/fm-operational-input.sh' encode launch-brief < '/t
+mp/fmcore-40339/home/data/live-ship-z1/launch-brief.md')"
+luis.urraca@X7X56XWY9W:/private/tmp/fmcore-40339/treehouse-root/.treehouse/proje
+ct-645d9b/1/project/ >

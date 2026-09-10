@@ -1,0 +1,6 @@
+=== invalid retry settings must exit 2 at normalize (before endpoint creation) ===
+FM_TREEHOUSE_GET_SEND_ATTEMPTS=0           rc=2 msg=error: FM_TREEHOUSE_GET_SEND_ATTEMPTS must be an integer from 1 through 10
+FM_TREEHOUSE_GET_SEND_ATTEMPTS=11          rc=2 msg=error: FM_TREEHOUSE_GET_SEND_ATTEMPTS must be an integer from 1 through 10
+FM_TREEHOUSE_GET_SEND_ATTEMPTS=1x          rc=2 msg=error: FM_TREEHOUSE_GET_SEND_ATTEMPTS must be an integer from 1 through 10
+FM_TREEHOUSE_GET_RETRY_WAIT_SECS=31        rc=2 msg=error: FM_TREEHOUSE_GET_RETRY_WAIT_SECS must be an integer from 0 through 30
+FM_TREEHOUSE_GET_RETRY_WAIT_SECS=-1        rc=2 msg=error: FM_TREEHOUSE_GET_RETRY_WAIT_SECS must be an integer from 0 through 30

@@ -1,0 +1,32 @@
+=== LIVE normalize validation against real bin/fm-spawn.sh ===
+host: Darwin 25.5.0 arm64  perl: /usr/bin/perl  tmux: MISSING  treehouse: MISSING
+
+### Case A: FM_TREEHOUSE_GET_SEND_ATTEMPTS=11 (>max 10) [fakebin: unused treehouse stub; real perl; no tmux]
+warning: /private/var/folders/nd/0_bhb5293s10qt4h7t4507g00000gp/T/nm-live-norm-ev.6kxiLr/home/data/live-norm-ev/launch-brief.md records no delivery contract line (scaffolded before ship briefs recorded one); launching on the explicit --mode no-mistakes - confirm its definition of done matches
+error: FM_TREEHOUSE_GET_SEND_ATTEMPTS must be an integer from 1 through 10
+PASS A: rc=2 matches expected=2 and contains 'must be an integer from 1 through 10'
+
+### Case B: FM_TREEHOUSE_GET_RETRY_WAIT_SECS=31 (>max 30)
+warning: /private/var/folders/nd/0_bhb5293s10qt4h7t4507g00000gp/T/nm-live-norm-ev.6kxiLr/home/data/live-norm-ev/launch-brief.md records no delivery contract line (scaffolded before ship briefs recorded one); launching on the explicit --mode no-mistakes - confirm its definition of done matches
+error: FM_TREEHOUSE_GET_RETRY_WAIT_SECS must be an integer from 0 through 30
+PASS B: rc=2 matches expected=2 and contains 'must be an integer from 0 through 30'
+
+### Case C: FM_TREEHOUSE_GET_SEND_ATTEMPTS=1x (non-integer)
+warning: /private/var/folders/nd/0_bhb5293s10qt4h7t4507g00000gp/T/nm-live-norm-ev.6kxiLr/home/data/live-norm-ev/launch-brief.md records no delivery contract line (scaffolded before ship briefs recorded one); launching on the explicit --mode no-mistakes - confirm its definition of done matches
+error: FM_TREEHOUSE_GET_SEND_ATTEMPTS must be an integer from 1 through 10
+PASS C: rc=2 matches expected=2 and contains 'must be an integer from 1 through 10'
+
+### Case D (PURE system PATH, ZERO stubs): FM_TREEHOUSE_GET_SEND_ATTEMPTS=11
+warning: /private/var/folders/nd/0_bhb5293s10qt4h7t4507g00000gp/T/nm-live-norm-ev.6kxiLr/home/data/live-norm-ev/launch-brief.md records no delivery contract line (scaffolded before ship briefs recorded one); launching on the explicit --mode no-mistakes - confirm its definition of done matches
+error: FM_TREEHOUSE_GET_SEND_ATTEMPTS must be an integer from 1 through 10
+PASS D-pure: rc=2 matches expected=2 and contains 'must be an integer from 1 through 10'
+
+### Case E: leading-zero valid FM_TREEHOUSE_GET_SEND_ATTEMPTS=0003 -> accepted by normalize, then fails at missing tmux
+warning: /private/var/folders/nd/0_bhb5293s10qt4h7t4507g00000gp/T/nm-live-norm-ev.6kxiLr/home/data/live-norm-ev/launch-brief.md records no delivery contract line (scaffolded before ship briefs recorded one); launching on the explicit --mode no-mistakes - confirm its definition of done matches
+/Users/luis.urraca/.no-mistakes/worktrees/0abc5c4ae5d7/01M25Z4TSYD2Z8ZMP08QQQZ2SA/bin/backends/tmux.sh: line 71: tmux: command not found
+/Users/luis.urraca/.no-mistakes/worktrees/0abc5c4ae5d7/01M25Z4TSYD2Z8ZMP08QQQZ2SA/bin/backends/tmux.sh: line 93: tmux: command not found
+/Users/luis.urraca/.no-mistakes/worktrees/0abc5c4ae5d7/01M25Z4TSYD2Z8ZMP08QQQZ2SA/bin/backends/tmux.sh: line 97: tmux: command not found
+PASS E: 0003 accepted (no exit 2); script proceeded to tmux backend which failed: 'tmux: command not found'
+
+=== SUMMARY: pass=5 fail=0 ===
+(Transcript saved: /Users/luis.urraca/.no-mistakes/evidence/01M25Z4TSYD2Z8ZMP08QQQZ2SA/live-normalize-transcript.txt)

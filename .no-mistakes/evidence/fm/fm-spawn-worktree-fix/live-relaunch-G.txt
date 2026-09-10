@@ -1,0 +1,31 @@
+relaunch-exit=0
+warning: /tmp/fmcore-40339/home/data/live-ship-z1/launch-brief.md records no delivery contract line (scaffolded before ship briefs recorded one); launching on the explicit --mode no-mistakes - confirm its definition of done matches
+spawned live-ship-z1 harness=codex kind=ship mode=no-mistakes yolo=off window=firstmate:fm-live-ship-z1 worktree=/private/tmp/fmcore-40339/treehouse-root/.treehouse/project-645d9b/1/project
+--- WORKER (cumulative) ---
+unset pid=42002
+unset pid=42823
+--- PANE ---
+luis.urraca@X7X56XWY9W:/private/tmp/fmcore-40339/treehouse-root/.treehouse/proje
+ct-645d9b/1/project/ > unset FM_TREEHOUSE_GET_TOKEN; env -u CURSOR_AGENT -u CURS
+OR_INVOKED_AS -u GEMINI_CLI codex --dangerously-bypass-approvals-and-sandbox -c
+"notify=[\"bash\",\"-c\",\"touch '/private/tmp/fmcore-40339/home/state/live-ship
+-z1.turn-ended'\"]" "$('/Users/luis.urraca/.no-mistakes/worktrees/0abc5c4ae5d7/0
+1M25Z4TSYD2Z8ZMP08QQQZ2SA/bin/fm-operational-input.sh' encode launch-brief < '/t
+mp/fmcore-40339/home/data/live-ship-z1/launch-brief.md')"
+luis.urraca@X7X56XWY9W:/private/tmp/fmcore-40339/treehouse-root/.treehouse/proje
+ct-645d9b/1/project/ > cd /tmp/fmcore-40339/project
+luis.urraca@X7X56XWY9W:/tmp/fmcore-40339/project/ > cd /private/tmp/fmcore-40339
+/treehouse-root/.treehouse/project-645d9b/1/project
+luis.urraca@X7X56XWY9W:/private/tmp/fmcore-40339/treehouse-root/.treehouse/proje
+ct-645d9b/1/project/ > export GOTMPDIR=/tmp/fm-live-ship-z1/gotmp
+luis.urraca@X7X56XWY9W:/private/tmp/fmcore-40339/treehouse-root/.treehouse/proje
+ct-645d9b/1/project/ > export FM_TASK_ID=live-ship-z1
+luis.urraca@X7X56XWY9W:/private/tmp/fmcore-40339/treehouse-root/.treehouse/proje
+ct-645d9b/1/project/ > unset TRACEPARENT; env -u CURSOR_AGENT -u CURSOR_INVOKED_
+AS -u GEMINI_CLI codex --dangerously-bypass-approvals-and-sandbox -c "notify=[\"
+bash\",\"-c\",\"touch '/private/tmp/fmcore-40339/home/state/live-ship-z1.turn-en
+ded'\"]" "$('/Users/luis.urraca/.no-mistakes/worktrees/0abc5c4ae5d7/01M25Z4TSYD2
+Z8ZMP08QQQZ2SA/bin/fm-operational-input.sh' encode launch-brief < '/tmp/fmcore-4
+0339/home/data/live-ship-z1/launch-brief.md')"
+luis.urraca@X7X56XWY9W:/private/tmp/fmcore-40339/treehouse-root/.treehouse/proje
+ct-645d9b/1/project/ >

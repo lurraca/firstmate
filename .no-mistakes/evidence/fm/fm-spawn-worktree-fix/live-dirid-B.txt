@@ -1,0 +1,10 @@
+FS=case-insensitive
+CaseProject inode: 131087922
+caseproject inode: 131087922
+isolated-wt inode: 131087983
+- case alias (caseproject):
+rc=1 reason=it is the spawning project itself
+- exact project (CaseProject):
+rc=1 reason=it is the spawning project itself
+- distinct linked worktree (isolated-wt):
+rc=0 reason=
